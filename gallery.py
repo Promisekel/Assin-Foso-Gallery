@@ -6,7 +6,7 @@ from PIL import Image
 USER_PROFILE = {
     "name": "Amelia Rice",
     "photo_count": 2390,
-    "albums": ["Christmas Party 2024", "Aspen 2015", "Croatia 2015"],
+    "albums": ["Subcarpathia 2016", "Summer 2015", "Aspen 2015", "Croatia 2015"],
     "categories": ["Photos", "Videos", "Projects"]
 }
 
@@ -35,19 +35,19 @@ st.write(f"Total Photos: {USER_PROFILE['photo_count']}")
 
 # Display Images in the Selected Album
 album_path = Path(IMAGE_DIR) / selected_album
-if album_path.exists() and album_path.is_dir():
-    image_files = list(album_path.glob("*.jpg")) + list(album_path.glob("*.png"))
-    if image_files:
-        cols = st.columns(3)  # Arrange images in a grid with 3 columns
-        for i, img_path in enumerate(image_files):
-            img = Image.open(img_path)
-            with cols[i % 3]:  # Dynamically place images in columns
-                if st.button(f"View {img_path.stem}", key=f"btn-{i}"):
-                    st.session_state.current_image_index = i
-    else:
-        st.write("No images found in this album.")
+album_path.mkdir(parents=True, exist_ok=True)  # Ensure the album folder exists
+image_files = list(album_path.glob("*.jpg")) + list(album_path.glob("*.png"))
+
+# Image Gallery
+if image_files:
+    cols = st.columns(3)  # Arrange images in a grid with 3 columns
+    for i, img_path in enumerate(image_files):
+        img = Image.open(img_path)
+        with cols[i % 3]:  # Dynamically place images in columns
+            if st.button(f"View {img_path.stem}", key=f"btn-{i}"):
+                st.session_state.current_image_index = i
 else:
-    st.write("Album not found. Please upload images to the respective album folder.")
+    st.write("No images found in this album. Upload new photos below.")
 
 # Full Image Viewer with Next and Previous Buttons
 if "current_image_index" not in st.session_state:
@@ -89,6 +89,10 @@ if uploaded_files:
         with open(save_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
     st.sidebar.success("Uploaded photos successfully!")
+
+    # Refresh the image list to include newly uploaded images
+    image_files = list(album_path.glob("*.jpg")) + list(album_path.glob("*.png"))
+    st.experimental_rerun()  # Reload the app to reflect the new images in the gallery
 
 # Footer
 st.sidebar.markdown("---")
