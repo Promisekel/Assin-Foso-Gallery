@@ -6,7 +6,7 @@ from PIL import Image
 USER_PROFILE = {
     "name": "Amelia Rice",
     "photo_count": 2390,
-    "albums": ["Subcarpathia 2016", "Summer 2015", "Aspen 2015", "Croatia 2015"],
+    "albums": ["Christmas Party 2024, "Summer 2015", "Aspen 2015", "Croatia 2015"],
     "categories": ["Photos", "Videos", "Projects"]
 }
 
@@ -31,15 +31,13 @@ selected_album = st.sidebar.selectbox("Select Album", USER_PROFILE["albums"])
 # Main Section: Album Photos
 st.title(f"Album: {selected_album}")
 st.write(f"Displaying images from the **{selected_album}** album")
-st.write(f"Total Photos: {USER_PROFILE['photo_count']}")
-
-# Display Images in the Selected Album
 album_path = Path(IMAGE_DIR) / selected_album
 album_path.mkdir(parents=True, exist_ok=True)  # Ensure the album folder exists
 image_files = list(album_path.glob("*.jpg")) + list(album_path.glob("*.png"))
 
-# Image Gallery
 if image_files:
+    st.write(f"Total Photos: {len(image_files)}")
+    # Image Gallery
     cols = st.columns(3)  # Arrange images in a grid with 3 columns
     for i, img_path in enumerate(image_files):
         img = Image.open(img_path)
@@ -48,13 +46,15 @@ if image_files:
                 st.session_state.current_image_index = i
 else:
     st.write("No images found in this album. Upload new photos below.")
+    st.stop()  # Stop execution if no images are available
 
 # Full Image Viewer with Next and Previous Buttons
 if "current_image_index" not in st.session_state:
-    st.session_state.current_image_index = None
+    st.session_state.current_image_index = 0
 
-if st.session_state.current_image_index is not None:
-    current_index = st.session_state.current_image_index
+current_index = st.session_state.current_image_index
+
+if current_index < len(image_files):  # Ensure the index is within range
     current_image = image_files[current_index]
 
     # Display the full image
@@ -76,6 +76,8 @@ if st.session_state.current_image_index is not None:
     # Close button
     if st.button("Close"):
         st.session_state.current_image_index = None
+else:
+    st.error("Error: The current image index is out of range.")
 
 # Upload Section
 st.sidebar.title("Upload New Photos")
