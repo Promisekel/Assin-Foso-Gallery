@@ -10,7 +10,6 @@ USER_PROFILE = {
     "categories": ["Photos", "Videos", "Projects"]
 }
 
-
 # File Structure for Images
 IMAGE_DIR = "images/"  # Folder to store image albums
 LOGO_PATH = "assets/logo.png"  # Path to your logo
@@ -32,34 +31,32 @@ selected_album = st.sidebar.selectbox("Select Album", USER_PROFILE["albums"])
 # Main Section: Album Photos
 st.title(f"Album: {selected_album}")
 st.write(f"Displaying images from the **{selected_album}** album")
+
+# Path for the selected album
 album_path = Path(IMAGE_DIR) / selected_album
 album_path.mkdir(parents=True, exist_ok=True)  # Ensure the album folder exists
 image_files = list(album_path.glob("*.jpg")) + list(album_path.glob("*.png"))
 
+# Display Images in the Selected Album
 if image_files:
-    st.write(f"Total Photos: {len(image_files)}")
-    # Image Gallery
     cols = st.columns(3)  # Arrange images in a grid with 3 columns
     for i, img_path in enumerate(image_files):
         img = Image.open(img_path)
         with cols[i % 3]:  # Dynamically place images in columns
-            if st.button(f"View {img_path.stem}", key=f"btn-{i}"):
-                st.session_state.current_image_index = i
+            st.image(img, caption=img_path.stem, use_container_width=True)
 else:
     st.write("No images found in this album. Upload new photos below.")
-    st.stop()  # Stop execution if no images are available
 
 # Full Image Viewer with Next and Previous Buttons
 if "current_image_index" not in st.session_state:
-    st.session_state.current_image_index = 0
+    st.session_state.current_image_index = None
 
-current_index = st.session_state.current_image_index
-
-if current_index < len(image_files):  # Ensure the index is within range
+if st.session_state.current_image_index is not None:
+    current_index = st.session_state.current_image_index
     current_image = image_files[current_index]
 
     # Display the full image
-    st.image(Image.open(current_image), use_column_width=True, caption=current_image.stem)
+    st.image(Image.open(current_image), use_container_width=True, caption=current_image.stem)
 
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -77,8 +74,6 @@ if current_index < len(image_files):  # Ensure the index is within range
     # Close button
     if st.button("Close"):
         st.session_state.current_image_index = None
-else:
-    st.error("Error: The current image index is out of range.")
 
 # Upload Section
 st.sidebar.title("Upload New Photos")
