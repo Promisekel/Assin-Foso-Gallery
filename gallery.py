@@ -17,19 +17,27 @@ st.sidebar.title("Options")
 option = st.sidebar.radio("Choose an action:", ["Upload", "Gallery", "About"])
 
 def view_full_image(image_list, start_index=0):
-    """Display images in full view with navigation."""
+    """Display images in full view with navigation and delete option."""
     current_index = st.session_state.get("current_image_index", start_index)
     image_path = os.path.join(UPLOAD_DIR, image_list[current_index])
     img = Image.open(image_path)
 
     st.markdown("---")
-    st.image(img, caption=image_list[current_index], use_container_width=True)
-
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3 = st.columns([1, 6, 1])
     with col1:
+        if st.button("❌ Delete", key="delete"):
+            os.remove(image_path)
+            st.success(f"Deleted {image_list[current_index]}")
+            st.session_state.pop("view_gallery", None)
+            st.experimental_rerun()
+    with col2:
+        st.image(img, caption=image_list[current_index], use_column_width=True)
+    
+    nav1, nav2, nav3 = st.columns([1, 1, 1])
+    with nav1:
         if st.button("⬅️ Previous", key="prev"):
             st.session_state["current_image_index"] = (current_index - 1) % len(image_list)
-    with col3:
+    with nav3:
         if st.button("➡️ Next", key="next"):
             st.session_state["current_image_index"] = (current_index + 1) % len(image_list)
 
@@ -56,7 +64,7 @@ elif option == "Gallery":
             image_path = os.path.join(UPLOAD_DIR, image_name)
             img = Image.open(image_path)
             with cols[i % 4]:
-                st.image(img, caption=image_name, use_container_width=True, output_format="JPEG")
+                st.image(img, caption=image_name, use_column_width=True, output_format="JPEG")
                 if st.button(f"View {image_name}", key=f"view_{i}"):
                     st.session_state["current_image_index"] = i
                     st.session_state["view_gallery"] = True
@@ -70,10 +78,11 @@ elif option == "About":
     st.header("📖 About this App")
     st.write(
         "This is a beautiful gallery app built with Streamlit. "
-        "You can upload pictures, view them in a gallery format, and download them as needed."
+        "You can upload pictures, view them in a gallery format, and manage them as needed."
     )
     st.markdown("---")
     st.markdown("### Features:")
     st.markdown("- Upload multiple pictures at once.")
     st.markdown("- View pictures in an elegant grid layout.")
     st.markdown("- Navigate through pictures in a detailed view with next and previous buttons.")
+    st.markdown("- Delete unwanted pictures directly from the app.")
