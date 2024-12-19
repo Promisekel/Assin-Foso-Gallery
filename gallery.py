@@ -6,9 +6,10 @@ from PIL import Image
 USER_PROFILE = {
     "name": "Amelia Rice",
     "photo_count": 2390,
-    "albums": ["Christmas Party 2024, "Summer 2015", "Aspen 2015", "Croatia 2015"],
+    "albums": ["Christmas Party 2024", "Summer 2015", "Aspen 2015", "Croatia 2015"],
     "categories": ["Photos", "Videos", "Projects"]
 }
+
 
 # File Structure for Images
 IMAGE_DIR = "images/"  # Folder to store image albums
