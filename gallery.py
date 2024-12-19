@@ -16,6 +16,22 @@ st.markdown("Upload and explore your pictures with an elegant gallery interface.
 st.sidebar.title("Options")
 option = st.sidebar.radio("Choose an action:", ["Upload", "Gallery", "About"])
 
+def view_full_image(image_list, start_index=0):
+    """Display images in full view with navigation."""
+    current_index = st.session_state.get("current_image_index", start_index)
+    image_path = os.path.join(UPLOAD_DIR, image_list[current_index])
+    img = Image.open(image_path)
+
+    st.image(img, caption=image_list[current_index], use_column_width=True)
+
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        if st.button("⬅️ Previous", key="prev"):
+            st.session_state["current_image_index"] = (current_index - 1) % len(image_list)
+    with col3:
+        if st.button("➡️ Next", key="next"):
+            st.session_state["current_image_index"] = (current_index + 1) % len(image_list)
+
 if option == "Upload":
     st.header("📤 Upload Your Pictures")
     uploaded_files = st.file_uploader(
@@ -39,13 +55,13 @@ elif option == "Gallery":
             image_path = os.path.join(UPLOAD_DIR, image_name)
             img = Image.open(image_path)
             with cols[i % 4]:
-                st.image(img, caption=image_name, use_column_width=True)
-                st.download_button(
-                    "Download",
-                    data=open(image_path, "rb").read(),
-                    file_name=image_name,
-                    mime="image/jpeg",
-                )
+                if st.button(image_name, key=f"view_{i}"):
+                    st.session_state["current_image_index"] = i
+                    st.session_state["view_gallery"] = True
+        
+        if st.session_state.get("view_gallery"):
+            st.markdown("---")
+            view_full_image(images)
     else:
         st.info("No images found. Please upload some pictures.")
 
@@ -60,3 +76,4 @@ elif option == "About":
     st.markdown("- Upload multiple pictures at once.")
     st.markdown("- View pictures in an elegant grid layout.")
     st.markdown("- Download your pictures easily.")
+    st.markdown("- Navigate through pictures in full-screen view.")
