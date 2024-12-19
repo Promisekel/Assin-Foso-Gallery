@@ -7,7 +7,7 @@ from PIL import Image
 USER_PROFILE = {
     "name": "Amelia Rice",
     "photo_count": 2390,
-    "albums": ["Subcarpathia 2016", "Summer 2015", "Aspen 2015", "Croatia 2015"],
+    "albums": ["Aspen 2015", "Croatia 2015"],
     "categories": ["Photos", "Videos", "Projects"]
 }
 
