@@ -15,7 +15,7 @@ USER_PROFILE = {
 IMAGE_DIR = "images/"  # Place your images here (e.g., images/album_name)
 
 # App Layout
-st.sidebar.image("logo.jpg", width=150, caption=USER_PROFILE["name"])  # Replace with user's profile picture
+st.sidebar.image("logo.png", width=150, caption=USER_PROFILE["name"])  # Replace with user's profile picture
 st.sidebar.title("Categories")
 for category in USER_PROFILE["categories"]:
     st.sidebar.write(f"- {category}")
