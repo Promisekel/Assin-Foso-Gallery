@@ -45,34 +45,8 @@ if "clicked_image" not in st.session_state:
 if image_files:
     cols = st.columns(3)  # Arrange images in a grid with 3 columns
     for i, img_path in enumerate(image_files):
-        img = Image.open(img_path)
         with cols[i % 3]:  # Dynamically place images in columns
-            if st.button(img_path.stem):  # Button to handle image click
-                st.session_state.clicked_image = img_path
-
-# Display Full-View Image if Clicked
-if st.session_state.clicked_image:
-    full_image_path = st.session_state.clicked_image
-    st.image(Image.open(full_image_path), caption=full_image_path.stem, use_container_width=True)
-    if st.button("Close Full View"):
-        st.session_state.clicked_image = None
-
-# Upload Section
-st.sidebar.title("Upload New Photos")
-uploaded_files = st.sidebar.file_uploader(
-    "Upload photos", type=["jpg", "png"], accept_multiple_files=True
-)
-if uploaded_files:
-    for uploaded_file in uploaded_files:
-        # Save each uploaded file to the appropriate album
-        save_path = album_path / uploaded_file.name
-        with open(save_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-    st.sidebar.success("Uploaded photos successfully!")
-
-    # Refresh the image list to include newly uploaded images
-    st.experimental_rerun()  # Reload the app to reflect the new images in the gallery
-
-# Footer
-st.sidebar.markdown("---")
-st.sidebar.write("Built with ❤️ using Streamlit")
+            img = Image.open(img_path)
+            # Make the image itself clickable
+            if st.button(f"Click here to open {img_path.stem} ", ###Make Below Block standard responsive app 
+            # Display Full View
