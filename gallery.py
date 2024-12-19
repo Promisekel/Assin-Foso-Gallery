@@ -6,7 +6,7 @@ from PIL import Image
 USER_PROFILE = {
     "name": "Amelia Rice",
     "photo_count": 2390,
-    "albums": [ "Christmas Party 2024", "Aspen 2015", "Croatia 2015"],
+    "albums": ["Subcarpathia 2016", "Summer 2015", "Aspen 2015", "Croatia 2015"],
     "categories": ["Photos", "Videos", "Projects"]
 }
 
@@ -42,11 +42,40 @@ if album_path.exists() and album_path.is_dir():
         for i, img_path in enumerate(image_files):
             img = Image.open(img_path)
             with cols[i % 3]:  # Dynamically place images in columns
-                st.image(img, caption=img_path.stem, use_column_width=True)
+                if st.button(f"View {img_path.stem}", key=f"btn-{i}"):
+                    st.session_state.current_image_index = i
     else:
         st.write("No images found in this album.")
 else:
     st.write("Album not found. Please upload images to the respective album folder.")
+
+# Full Image Viewer with Next and Previous Buttons
+if "current_image_index" not in st.session_state:
+    st.session_state.current_image_index = None
+
+if st.session_state.current_image_index is not None:
+    current_index = st.session_state.current_image_index
+    current_image = image_files[current_index]
+
+    # Display the full image
+    st.image(Image.open(current_image), use_column_width=True, caption=current_image.stem)
+
+    # Navigation buttons
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        if current_index > 0:
+            if st.button("Previous"):
+                st.session_state.current_image_index -= 1
+    with col2:
+        st.write("")  # Spacer
+    with col3:
+        if current_index < len(image_files) - 1:
+            if st.button("Next"):
+                st.session_state.current_image_index += 1
+
+    # Close button
+    if st.button("Close"):
+        st.session_state.current_image_index = None
 
 # Upload Section
 st.sidebar.title("Upload New Photos")
