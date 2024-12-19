@@ -22,7 +22,8 @@ def view_full_image(image_list, start_index=0):
     image_path = os.path.join(UPLOAD_DIR, image_list[current_index])
     img = Image.open(image_path)
 
-    st.image(img, caption=image_list[current_index], use_column_width=True)
+    st.markdown("---")
+    st.image(img, caption=image_list[current_index], use_container_width=True)
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
@@ -55,12 +56,12 @@ elif option == "Gallery":
             image_path = os.path.join(UPLOAD_DIR, image_name)
             img = Image.open(image_path)
             with cols[i % 4]:
-                if st.button(image_name, key=f"view_{i}"):
+                st.image(img, caption=image_name, use_column_width=True, output_format="JPEG")
+                if st.button(f"View {image_name}", key=f"view_{i}"):
                     st.session_state["current_image_index"] = i
                     st.session_state["view_gallery"] = True
         
         if st.session_state.get("view_gallery"):
-            st.markdown("---")
             view_full_image(images)
     else:
         st.info("No images found. Please upload some pictures.")
@@ -75,5 +76,4 @@ elif option == "About":
     st.markdown("### Features:")
     st.markdown("- Upload multiple pictures at once.")
     st.markdown("- View pictures in an elegant grid layout.")
-    st.markdown("- Download your pictures easily.")
-    st.markdown("- Navigate through pictures in full-screen view.")
+    st.markdown("- Navigate through pictures in a detailed view with next and previous buttons.")
