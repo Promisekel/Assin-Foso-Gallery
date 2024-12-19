@@ -1,49 +1,85 @@
 import streamlit as st
-import os
 from PIL import Image
+import os
 
-# Directory to store uploaded images
+# Directory for storing uploaded files
 UPLOAD_DIR = "uploaded_images"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
 
-# Helper function to list all images in the directory
-def list_images():
-    return [f for f in os.listdir(UPLOAD_DIR) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
+# App title
+st.set_page_config(page_title="Gallery App", layout="wide")
+st.title("🌟 Beautiful Gallery App")
+st.markdown("Upload and explore your pictures with an elegant gallery interface.")
 
-# Initialize session state for navigation
-if "image_index" not in st.session_state:
-    st.session_state.image_index = 0
+# Sidebar options
+st.sidebar.title("Options")
+option = st.sidebar.radio("Choose an action:", ["Upload", "Gallery", "About"])
 
-# Title
-st.title("Image Gallery App")
+def view_full_image(image_list, start_index=0):
+    """Display images in full view with navigation."""
+    if "current_image_index" not in st.session_state:
+        st.session_state["current_image_index"] = start_index
 
-# Upload images
-uploaded_files = st.file_uploader("Upload Images", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
-if uploaded_files:
-    for uploaded_file in uploaded_files:
-        with open(os.path.join(UPLOAD_DIR, uploaded_file.name), "wb") as f:
-            f.write(uploaded_file.read())
-    st.success("Images uploaded successfully!")
+    current_index = st.session_state["current_image_index"]
+    image_path = os.path.join(UPLOAD_DIR, image_list[current_index])
+    img = Image.open(image_path)
 
-# Get the list of images
-images = list_images()
+    st.markdown("---")
+    st.image(img, caption=image_list[current_index], use_column_width=True)
 
-if images:
-    # Display current image
-    current_image = images[st.session_state.image_index]
-    image_path = os.path.join(UPLOAD_DIR, current_image)
-    image = Image.open(image_path)
-    st.image(image, caption=current_image, use_column_width=True)
-
-    # Navigation buttons
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
-        if st.button("Previous"):
-            st.session_state.image_index = (st.session_state.image_index - 1) % len(images)
-    with col2:
-        st.download_button("Download", data=open(image_path, "rb"), file_name=current_image)
+        if st.button("⬅️ Previous", key=f"prev_{current_index}"):
+            st.session_state["current_image_index"] = (current_index - 1) % len(image_list)
+            st.experimental_rerun()
     with col3:
-        if st.button("Next"):
-            st.session_state.image_index = (st.session_state.image_index + 1) % len(images)
-else:
-    st.info("No images uploaded yet. Use the uploader above to add images.")
+        if st.button("➡️ Next", key=f"next_{current_index}"):
+            st.session_state["current_image_index"] = (current_index + 1) % len(image_list)
+            st.experimental_rerun()
+
+if option == "Upload":
+    st.header("📤 Upload Your Pictures")
+    uploaded_files = st.file_uploader(
+        "Choose images to upload (png, jpg, jpeg)", type=["png", "jpg", "jpeg"], accept_multiple_files=True
+    )
+    
+    if uploaded_files:
+        for file in uploaded_files:
+            file_path = os.path.join(UPLOAD_DIR, file.name)
+            with open(file_path, "wb") as f:
+                f.write(file.read())
+        st.success("Upload successful! Check out your gallery.")
+
+elif option == "Gallery":
+    st.header("🖼️ Your Picture Gallery")
+    images = [f for f in os.listdir(UPLOAD_DIR) if f.endswith((".png", ".jpg", ".jpeg"))]
+    
+    if images:
+        cols = st.columns(4)
+        for i, image_name in enumerate(images):
+            image_path = os.path.join(UPLOAD_DIR, image_name)
+            img = Image.open(image_path)
+            with cols[i % 4]:
+                st.image(img, caption=image_name, use_column_width=True, output_format="JPEG")
+                if st.button(f"View {image_name}", key=f"view_{i}"):
+                    st.session_state["current_image_index"] = i
+                    st.session_state["view_gallery"] = True
+                    st.experimental_rerun()
+        
+        if st.session_state.get("view_gallery"):
+            view_full_image(images)
+    else:
+        st.info("No images found. Please upload some pictures.")
+
+elif option == "About":
+    st.header("📖 About this App")
+    st.write(
+        "This is a beautiful gallery app built with Streamlit. "
+        "You can upload pictures, view them in a gallery format, and download them as needed."
+    )
+    st.markdown("---")
+    st.markdown("### Features:")
+    st.markdown("- Upload multiple pictures at once.")
+    st.markdown("- View pictures in an elegant grid layout.")
+    st.markdown("- Navigate through pictures in a detailed view with next and previous buttons.")
