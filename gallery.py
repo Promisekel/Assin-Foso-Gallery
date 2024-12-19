@@ -56,7 +56,7 @@ elif option == "Gallery":
             image_path = os.path.join(UPLOAD_DIR, image_name)
             img = Image.open(image_path)
             with cols[i % 4]:
-                st.image(img, caption=image_name, use_column_width=True, output_format="JPEG")
+                st.image(img, caption=image_name, use_container_width=True, output_format="JPEG")
                 if st.button(f"View {image_name}", key=f"view_{i}"):
                     st.session_state["current_image_index"] = i
                     st.session_state["view_gallery"] = True
