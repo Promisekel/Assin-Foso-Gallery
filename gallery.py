@@ -37,43 +37,25 @@ album_path = Path(IMAGE_DIR) / selected_album
 album_path.mkdir(parents=True, exist_ok=True)  # Ensure the album folder exists
 image_files = list(album_path.glob("*.jpg")) + list(album_path.glob("*.png"))
 
+# Session state for tracking clicked image
+if "clicked_image" not in st.session_state:
+    st.session_state.clicked_image = None
+
 # Display Images in the Selected Album
 if image_files:
     cols = st.columns(3)  # Arrange images in a grid with 3 columns
     for i, img_path in enumerate(image_files):
         img = Image.open(img_path)
         with cols[i % 3]:  # Dynamically place images in columns
-            st.image(img, caption=img_path.stem, use_container_width=True)
-else:
-    st.write("No images found in this album. Upload new photos below.")
+            if st.button(img_path.stem):  # Button to handle image click
+                st.session_state.clicked_image = img_path
 
-# Full Image Viewer with Next and Previous Buttons
-if "current_image_index" not in st.session_state:
-    st.session_state.current_image_index = None
-
-if st.session_state.current_image_index is not None:
-    current_index = st.session_state.current_image_index
-    current_image = image_files[current_index]
-
-    # Display the full image
-    st.image(Image.open(current_image), use_container_width=True, caption=current_image.stem)
-
-    # Navigation buttons
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col1:
-        if current_index > 0:
-            if st.button("Previous"):
-                st.session_state.current_image_index -= 1
-    with col2:
-        st.write("")  # Spacer
-    with col3:
-        if current_index < len(image_files) - 1:
-            if st.button("Next"):
-                st.session_state.current_image_index += 1
-
-    # Close button
-    if st.button("Close"):
-        st.session_state.current_image_index = None
+# Display Full-View Image if Clicked
+if st.session_state.clicked_image:
+    full_image_path = st.session_state.clicked_image
+    st.image(Image.open(full_image_path), caption=full_image_path.stem, use_container_width=True)
+    if st.button("Close Full View"):
+        st.session_state.clicked_image = None
 
 # Upload Section
 st.sidebar.title("Upload New Photos")
@@ -89,7 +71,6 @@ if uploaded_files:
     st.sidebar.success("Uploaded photos successfully!")
 
     # Refresh the image list to include newly uploaded images
-    image_files = list(album_path.glob("*.jpg")) + list(album_path.glob("*.png"))
     st.experimental_rerun()  # Reload the app to reflect the new images in the gallery
 
 # Footer
